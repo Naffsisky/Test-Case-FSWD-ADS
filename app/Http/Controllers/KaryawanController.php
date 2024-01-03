@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Karyawan;
 use App\Http\Resources\KaryawanResource;
+use Illuminate\Support\Carbon;
 
 class KaryawanController extends Controller
 {
@@ -96,10 +97,22 @@ class KaryawanController extends Controller
     public function remainingLeaveQuota()
     {
         $karyawans = Karyawan::all();
-
         $result = [];
+
         foreach ($karyawans as $karyawan) {
-            $totalCutiTaken = $karyawan->cutis()->sum('lama_cuti');
+            $cutis = $karyawan->cutis;
+
+            // Filter cuti berdasarkan tahun sekarang
+            $cutisThisYear = $cutis->filter(function ($cuti) {
+                return Carbon::parse($cuti->tanggal_cuti)->year == date('Y');
+            });
+
+            // Jika ada cuti di tahun sekarang, hitung total cuti
+            if ($cutisThisYear->count() > 0) {
+                $totalCutiTaken = $cutisThisYear->sum('lama_cuti');
+            } else {
+                $totalCutiTaken = 0;
+            }
 
             $sisaCuti = max(0, 12 - $totalCutiTaken);
 
@@ -107,6 +120,7 @@ class KaryawanController extends Controller
                 'nomor_induk' => $karyawan->nomor_induk,
                 'nama' => $karyawan->nama,
                 'sisa_cuti' => $sisaCuti,
+                'total_cuti' => $totalCutiTaken
             ];
         }
 
