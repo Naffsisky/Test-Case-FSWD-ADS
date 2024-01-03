@@ -1,0 +1,18 @@
+@base_url = http://localhost:8000
+
+### Membuat Karyawan Baru
+
+POST {{base_url}}/api/karyawan
+Content-Type: application/json
+
+{
+    "nomor_induk": "IP06001", 
+    "nama": "Agus", 
+    "alamat": "Jln Gaja Mada no 12, Surabaya", 
+    "tanggal_lahir": "1980-01-11", 
+    "tanggal_bergabung": "2005-08-07"
+}
+
+### Mengambil Daftar Karyawan
+GET {{base_url}}/api/karyawan
+Content-Type: application/json
